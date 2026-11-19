@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EcoSISE - Reciclaje con Recompensas</title>
+  <style>
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
+    body { background: #e5e7eb; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    .phone { width: 375px; height: 700px; background: #ffffff; border-radius: 32px; box-shadow: 0 20px 40px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; border: 8px solid #1f2937; position: relative; }
+    .header { background: #10b981; color: white; padding: 18px 20px; font-weight: bold; font-size: 18px; display: flex; justify-content: space-between; align-items: center; }
+    .screen { display: none; flex: 1; padding: 24px; flex-direction: column; justify-content: space-between; overflow-y: auto; }
+    .screen.active { display: flex; }
+    .center { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; }
+    .logo { font-size: 56px; margin-bottom: 10px; }
+    h1 { color: #1f2937; font-size: 28px; margin-bottom: 6px; }
+    p { color: #6b7280; font-size: 14px; line-height: 1.4; }
+    input { width: 100%; padding: 14px; border: 1.5px solid #d1d5db; border-radius: 12px; font-size: 15px; margin: 20px 0; outline: none; }
+    input:focus { border-color: #10b981; }
+    .btn { width: 100%; padding: 15px; border: none; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+    .btn-primary { background: #10b981; color: white; }
+    .btn-primary:hover { background: #059669; }
+    .btn-outline { background: white; color: #10b981; border: 2px solid #10b981; }
+    .btn-gray { background: #f3f4f6; color: #374151; }
+    .card { background: #f9fafb; border: 1.5px solid #e5e7eb; border-radius: 16px; padding: 20px; text-align: center; margin: 16px 0; }
+    .points-big { font-size: 44px; font-weight: 800; color: #10b981; margin: 6px 0; }
+    .scanner-box { width: 220px; height: 220px; background: #1f2937; border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; margin: 20px auto; border: 4px dashed #10b981; }
+    .reward-item { background: #f9fafb; border: 1.5px solid #e5e7eb; border-radius: 14px; padding: 14px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .reward-info h4 { color: #1f2937; font-size: 15px; margin-bottom: 4px; }
+    .reward-info span { color: #10b981; font-weight: bold; font-size: 13px; }
+    .btn-sm { padding: 8px 14px; border-radius: 8px; border: none; background: #10b981; color: white; font-weight: bold; cursor: pointer; }
+    .coupon-box { border: 2px dashed #10b981; background: #ecfdf5; border-radius: 16px; padding: 24px; text-align: center; margin: 20px 0; }
+    .barcode { font-family: monospace; font-size: 24px; letter-spacing: 3px; background: white; padding: 12px; border-radius: 8px; margin: 14px 0; border: 1px solid #d1d5db; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+<div class="phone">
+  <!-- PANTALLA 1: LOGIN -->
+  <div id="s1" class="screen active">
+    <div class="center">
+      <div class="logo">♻️</div>
+      <h1>EcoSISE</h1>
+      <p>Recicla tus envases, suma puntos y canjea beneficios en tu sede.</p>
+      <input type="text" id="studentCode" placeholder="Código de alumno (ej. 20261045)" />
+      <button class="btn btn-primary" onclick="login()">INGRESAR</button>
+    </div>
+    <p style="text-align:center; font-size:12px;">Instituto Superior SISE • Lima 2026</p>
+  </div>
+
+  <!-- PANTALLA 2: HOME -->
+  <div id="s2" class="screen">
+    <div>
+      <div class="header" style="margin: -24px -24px 20px -24px;">
+        <span id="welcomeText">Hola, Estudiante 👋</span>
+        <span>SISE</span>
+      </div>
+      <div class="card">
+        <p>Tu saldo disponible</p>
+        <div class="points-big" id="pointsDisplay">120</div>
+        <p style="font-weight:600; color:#374151;">Eco-Puntos</p>
+        <p style="margin-top:10px; font-size:13px;">♻️ <span id="bottlesDisplay">12</span> botellas recicladas</p>
+      </div>
+    </div>
+    <div>
+      <button class="btn btn-primary" onclick="go('s3')">📷 ESCANEAR QR DEL TACHO</button>
+      <button class="btn btn-outline" onclick="go('s5')">🎁 CANJEAR PREMIOS</button>
+      <button class="btn btn-gray" onclick="go('s1')" style="font-size:13px;">Cerrar sesión</button>
+    </div>
+  </div>
+
+  <!-- PANTALLA 3: ESCANEO QR -->
+  <div id="s3" class="screen">
+    <div>
+      <div class="header" style="margin: -24px -24px 20px -24px;">
+        <span>Escanear Punto de Acopio</span>
+      </div>
+      <p style="text-align:center;">Deposita tu botella PET limpia y apunta la cámara al código QR del contenedor.</p>
+      <div class="scanner-box">
+        <div style="font-size:50px;">📱</div>
+        <p style="color:#d1d5db; margin-top:10px; font-size:12px;">Buscando código QR...</p>
+      </div>
+    </div>
+    <div>
+      <button class="btn btn-primary" onclick="addPoints()">✅ SIMULAR ESCANEO EXITOSO</button>
+      <button class="btn btn-gray" onclick="go('s2')">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- PANTALLA 4: CONFIRMACIÓN -->
+  <div id="s4" class="screen">
+    <div class="center">
+      <div style="font-size:70px; margin-bottom:12px;">🎉</div>
+      <h1 style="color:#10b981;">¡+10 Eco-Puntos!</h1>
+      <p style="margin-top:8px;">Has registrado 1 envase PET correctamente. Tu nuevo saldo es de <strong id="newPointsText">130</strong> Eco-Puntos.</p>
+    </div>
+    <div>
+      <button class="btn btn-primary" onclick="go('s5')">VER PREMIOS DISPONIBLES</button>
+      <button class="btn btn-gray" onclick="go('s2')">VOLVER AL INICIO</button>
+    </div>
+  </div>
+
+  <!-- PANTALLA 5: CATÁLOGO DE PREMIOS -->
+  <div id="s5" class="screen">
+    <div>
+      <div class="header" style="margin: -24px -24px 20px -24px;">
+        <span>Catálogo de Canje</span>
+        <span id="badgePoints">120 pts</span>
+      </div>
+      <div class="reward-item">
+        <div class="reward-info">
+          <h4>🖨️ 10 Impresiones B/N</h4>
+          <span>Costo: 50 Eco-Puntos</span>
+        </div>
+        <button class="btn-sm" onclick="redeem('10 Impresiones B/N', 50)">Canjear</button>
+      </div>
+      <div class="reward-item">
+        <div class="reward-info">
+          <h4>☕ Descuento S/ 2.00 Cafetería</h4>
+          <span>Costo: 100 Eco-Puntos</span>
+        </div>
+        <button class="btn-sm" onclick="redeem('Descuento S/ 2.00 en Cafetería', 100)">Canjear</button>
+      </div>
+      <div class="reward-item">
+        <div class="reward-info">
+          <h4>🥪 Combo Snack Saludable</h4>
+          <span>Costo: 200 Eco-Puntos</span>
+        </div>
+        <button class="btn-sm" onclick="redeem('Combo Snack Saludable', 200)">Canjear</button>
+      </div>
+    </div>
+    <button class="btn btn-gray" onclick="go('s2')">← Volver al inicio</button>
+  </div>
+
+  <!-- PANTALLA 6: CUPÓN -->
+  <div id="s6" class="screen">
+    <div class="center">
+      <div style="font-size:50px;">🎟️</div>
+      <h1>¡Canje Exitoso!</h1>
+      <p>Muestra este cupón digital en caja</p>
+      <div class="coupon-box">
+        <strong id="couponTitle" style="color:#065f46; font-size:16px;">Descuento S/ 2.00</strong>
+        <div class="barcode" id="couponCode">#SISE-8492</div>
+        <p style="font-size:12px; color:#047857;">Válido hoy en Cafetería / Centro de Copiado SISE</p>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="go('s2')">FINALIZAR Y VOLVER</button>
+  </div>
+</div>
+
+<script>
+  let points = 120;
+  let bottles = 12;
+
+  function go(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+    updateUI();
+  }
+
+  function login() {
+    const code = document.getElementById('studentCode').value.trim();
+    document.getElementById('welcomeText').innerText = code ? `Hola, ${code} 👋` : 'Hola, Estudiante 👋';
+    go('s2');
+  }
+
+  function updateUI() {
+    document.getElementById('pointsDisplay').innerText = points;
+    document.getElementById('bottlesDisplay').innerText = bottles;
+    document.getElementById('newPointsText').innerText = points;
+    document.getElementById('badgePoints').innerText = points + ' pts';
+  }
+
+  function addPoints() {
+    points += 10;
+    bottles += 1;
+    go('s4');
+  }
+
+  function redeem(prizeName, cost) {
+    if (points < cost) {
+      alert('No tienes suficientes Eco-Puntos. ¡Escanea más botellas para alcanzar este premio!');
+      return;
+    }
+    points -= cost;
+    const randomCode = '#SISE-' + Math.floor(1000 + Math.random() * 9000);
+    document.getElementById('couponTitle').innerText = prizeName;
+    document.getElementById('couponCode').innerText = randomCode;
+    go('s6');
+  }
+</script>
+
+</body>
+</html>
